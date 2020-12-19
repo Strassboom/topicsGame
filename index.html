@@ -23,6 +23,7 @@
       canvas.width=1000;
       canvas.height = 1000;
       var ctx = canvas.getContext('2d');
+      var buddy = {x:0,y:0}
 
       // Get relative mouse position (top left corner of canvas is 0,0)
       function getMousePos(evt) {
@@ -41,12 +42,19 @@
       ctx.fillStyle = "red";
       ctx.fill();
 
-      function update(progress){
+      function update(){
 
+        draw();
+        ws.send(`[${JSON.stringify(buddy)}]`);
+        setTimeout(update, 10000);
       }
 
       function draw(){
 
+      }
+
+      function startGame(){
+        update();
       }
 
       // Create a websocket for sending data to the server
@@ -55,6 +63,7 @@
       // Send a message to the server after successfully connecting to the server
       ws.onopen = function open() {
         ws.send('something');
+        startGame();
         // sendData();
       };
 
