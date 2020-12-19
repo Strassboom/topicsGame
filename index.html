@@ -1,28 +1,60 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <style>
+      #canvas-container {
+        width: 100%;
+        text-align:center;
+      }
 
+      canvas {
+        display: inline;
+      }
+    </style>
   </head>
   <body>
-    <canvas id='gameCanvas' width=100vw height=100vh></canvas>
+    <div id='canvas-container'>
+      <canvas id='gameCanvas'></canvas>
+    </div>
     <script>
+      // Get canvas and set canvas size
       var canvas = document.getElementById('gameCanvas');
+      canvas.width=1000;
+      canvas.height = 1000;
       var ctx = canvas.getContext('2d');
+
+      // Get relative mouse position (top left corner of canvas is 0,0)
+      function getMousePos(evt) {
+          var rect = canvas.getBoundingClientRect();
+          return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+          };
+      }
+
+      canvas.addEventListener('click',getMousePos);
+
+      // Draw a rectangle in canvas so we can see it
       ctx.beginPath();
-      ctx.rect(20, 20, 150, 100);
+      ctx.rect(0, 0, 1000, 1000);
       ctx.fillStyle = "red";
       ctx.fill();
+
+      // Create a websocket for sending data to the server
       const ws = new WebSocket('ws://0.0.0.0:8080','json');
 
+      // Send a message to the server after successfully connecting to the server
       ws.onopen = function open() {
         ws.send('something');
         // sendData();
       };
 
+      // Upon receiving a message from the server, do this
       ws.onmessage = function incoming(data) {
         console.log(data);
       };
 
+      // Loop to repeatedly send updated data
       function sendData(){
         ws.send('something');
         setTimeout(function(){ sendData() }, 10000);
