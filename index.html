@@ -5,7 +5,24 @@
   </head>
   <body>
     <script>
+
+      const ws = new WebSocket('ws://0.0.0.0:8080','json');
+
+      ws.onopen = function open() {
+        ws.send('something');
+        sendData();
+      };
+
+      ws.onmessage = function incoming(data) {
+        console.log(data);
+      };
+
+      function sendData(){
+        ws.send('something');
+        setTimeout(function(){ sendData() }, 10000);
+      }
       
+
     </script>
   </body>
 </html>
