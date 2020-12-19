@@ -4,8 +4,14 @@
 
   </head>
   <body>
+    <canvas id='gameCanvas' width=100vw height=100vh></canvas>
     <script>
-
+      var canvas = document.getElementById('gameCanvas');
+      var ctx = canvas.getContext('2d');
+      ctx.beginPath();
+      ctx.rect(20, 20, 150, 100);
+      ctx.fillStyle = "red";
+      ctx.fill();
       const ws = new WebSocket('ws://0.0.0.0:8080','json');
 
       ws.onopen = function open() {
