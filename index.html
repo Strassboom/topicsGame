@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
       #canvas-container {
         width: 100%;
@@ -39,6 +40,14 @@
       ctx.rect(0, 0, 1000, 1000);
       ctx.fillStyle = "red";
       ctx.fill();
+
+      function update(progress){
+
+      }
+
+      function draw(){
+
+      }
 
       // Create a websocket for sending data to the server
       const ws = new WebSocket('ws://0.0.0.0:8080','json');

@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Strassboom/topicsGame/issues"
   },
-  "homepage": "https://github.com/Strassboom/topicsGame#readme"
+  "homepage": "https://github.com/Strassboom/topicsGame#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
