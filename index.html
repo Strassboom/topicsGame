@@ -18,65 +18,140 @@
       <canvas id='gameCanvas'></canvas>
     </div>
     <script>
-      // Get canvas and set canvas size
-      var canvas = document.getElementById('gameCanvas');
-      canvas.width=1000;
-      canvas.height = 1000;
-      var ctx = canvas.getContext('2d');
       var buddy = {x:0,y:0}
-
+      
       // Get relative mouse position (top left corner of canvas is 0,0)
       function getMousePos(evt) {
-          var rect = canvas.getBoundingClientRect();
-          return {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top
-          };
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
       }
-
-      canvas.addEventListener('click',getMousePos);
-
+      
+      //canvas.addEventListener('click',getMousePos);
+      
       // Draw a rectangle in canvas so we can see it
-      ctx.beginPath();
-      ctx.rect(0, 0, 1000, 1000);
-      ctx.fillStyle = "red";
-      ctx.fill();
-
-      function update(){
-
-        draw();
-        ws.send(`[${JSON.stringify(buddy)}]`);
-        setTimeout(update, 10000);
+      var player = function(){
+        return {
+                position: { x: 500, y: 900 },
+                hp: 4,
+                heat: 10,
+                maxHeat: 100,
+                shipType: ships['bead'],
+                gunType: guns['peaShooter']
+                }
       }
 
-      function draw(){
-
+      var ships = {
+        bead: {
+          shipBody: {
+            hull: { 
+                    position: { x: 29, y: 1 },
+                    size: { width: 23, height: 62 },
+                    color:  '#2bb59c'
+                  },
+            wings: {
+                    position: { x: 8, y: 21 }, 
+                    size: { width: 64, height: 15 },
+                    color:  '#2bb59c'
+                  },
+            specialLeft: { 
+                    position: { x: 1, y: 25 },
+                    size: { width: 15, height: 25 },
+                    color:  '#2bb59c'
+            },
+            specialRight: { 
+                    position: { x: 63, y: 25 },
+                    size: { width: 15, height: 25 },
+                    color:  '#2bb59c'
+            },
+            cockpit: { 
+                    position: { x: 35, y: 10 },
+                    size: { width: 11, height: 21 },
+                    color:  '#00ffff'
+                  }
+          },
+          size: { width: 77, height: 62 }
+        }
       }
 
-      function startGame(){
-        update();
+      var guns = {
+        peaShooter: {
+          baseMagCapacity: 10,
+          currentMagCapacity: 10,
+          currentMagRemaining: 10,
+          magLevelIncrement: 5,
+          heatPerShot: 7,
+          rateOfFire: 1.25,
+          bulletWidth: .01,
+          bulletVelocity: .001
+        }
+      }
+      
+      var game = {
+        canvas: document.getElementById('gameCanvas'),
+        update: function(){
+          game.draw();
+          //game.sendMomentData();
+          //ws.send(`[${JSON.stringify(buddy)}]`);
+          setTimeout(game.update, 10000);
+        },
+        
+        draw: function(){
+          game.clear();
+          game.drawBackground();
+          game.drawPlayer();
+        },
+        drawPlayer: function(){
+          console.log(Object.values(this.player.shipType.shipBody)[0].position);
+          Object.values(this.player.shipType.shipBody).forEach((piece) => {
+            console.log(this.player.position)
+            this.ctx.fillStyle = piece.color
+            this.ctx.fillRect(this.player.position.x + piece.position.x, this.player.position.y + piece.position.y, piece.size.width, piece.size.height);
+          })
+        },
+        drawBackground: function(){
+          this.ctx.beginPath();
+          this.ctx.rect(0, 0, 1000, 1000);
+          this.ctx.fillStyle = "#8e60b6";
+          this.ctx.fill();
+        },
+        clear : function() {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        },
+        startGame: function(){
+        // Set canvas size and get context
+        this.canvas.width = 1000;
+        this.canvas.height = 1000;
+        this.player = new player();
+        this.ctx = this.canvas.getContext('2d');
+        game.update();
       }
 
-      // Create a websocket for sending data to the server
-      const ws = new WebSocket('ws://0.0.0.0:8080','json');
+    }
+    game.startGame();
 
-      // Send a message to the server after successfully connecting to the server
-      ws.onopen = function open() {
-        ws.send('something');
-        startGame();
-        // sendData();
-      };
+      // // Create a websocket for sending data to the server
+      // const ws = new WebSocket('ws://0.0.0.0:8080','json');
 
-      // Upon receiving a message from the server, do this
-      ws.onmessage = function incoming(data) {
-        console.log(data);
-      };
+      // // Send a message to the server after successfully connecting to the server
+      // ws.onopen = function open() {
+      //   ws.send('something');
+      //   //startGame();
+      //   // sendData();
+      // };
 
-      // Loop to repeatedly send updated data
-      function sendData(){
-        ws.send('something');
-        setTimeout(function(){ sendData() }, 10000);
-      }
+      // // Upon receiving a message from the server, do this
+      // ws.onmessage = function incoming(data) {
+      //   console.log(data);
+      // };
+
+      // // Loop to repeatedly send updated data
+      // function sendData(){
+      //   ws.send('something');
+      //   setTimeout(function(){ sendData() }, 10000);
+      // }
       
 
     </script>
