@@ -33,14 +33,24 @@
       
       // Draw a rectangle in canvas so we can see it
       var player = function(){
-        return {
-                position: { x: 500, y: 900 },
-                hp: 4,
-                heat: 10,
-                maxHeat: 100,
-                shipType: ships['bead'],
-                gunType: guns['peaShooter']
-                }
+        this.shipType = ships['bead'];
+        this.gunType = guns['peaShooter'];
+        this.position = { x: 500, y: 900 };
+        this.speedX = 0;
+        this.speedY = 0;
+        this.heat = 0;
+        this.hp = this.shipType.hp;
+        this.maxHeat = this.shipType.maxHeat;
+        this.newPosX = function(){
+          return this.speedX * game.canvas.width * this.shipType.maxVelocity
+        }
+        this.newPosY = function(){
+          return this.speedY * game.canvas.height * this.shipType.maxVelocity
+        }
+        this.update = function(){
+          this.position.x += this.newPosX();
+          this.position.y += this.newPosY();
+        }
       }
 
       var ships = {
@@ -49,30 +59,38 @@
             hull: { 
                     position: { x: 29, y: 1 },
                     size: { width: 23, height: 62 },
-                    color:  '#2bb59c'
+                    color:  '#2bb59c',
+                    mass: 1
                   },
             wings: {
                     position: { x: 8, y: 21 }, 
                     size: { width: 64, height: 15 },
-                    color:  '#2bb59c'
+                    color:  '#2bb59c',
+                    mass: 1
                   },
             specialLeft: { 
                     position: { x: 1, y: 25 },
                     size: { width: 15, height: 25 },
-                    color:  '#2bb59c'
+                    color:  '#2bb59c',
+                    mass: 1
             },
             specialRight: { 
                     position: { x: 63, y: 25 },
                     size: { width: 15, height: 25 },
-                    color:  '#2bb59c'
+                    color:  '#2bb59c',
+                    mass: 1
             },
             cockpit: { 
                     position: { x: 35, y: 10 },
                     size: { width: 11, height: 21 },
-                    color:  '#00ffff'
+                    color:  '#00ffff',
+                    mass: 1
                   }
           },
-          size: { width: 77, height: 62 }
+          size: { width: 77, height: 62 },
+          maxVelocity: 0.0032,
+          hp: 4,
+          maxHeat: 100
         }
       }
 
@@ -92,24 +110,33 @@
       var game = {
         canvas: document.getElementById('gameCanvas'),
         update: function(){
-          game.draw();
-          //game.sendMomentData();
-          //ws.send(`[${JSON.stringify(buddy)}]`);
-          setTimeout(game.update, 10000);
-        },
-        
-        draw: function(){
           game.clear();
+          gamePlayer.speedX = 0;
+          gamePlayer.speedY = 0;
+          if (game.keys && game.keys[37]) {gamePlayer.speedX = -1; }
+          if (game.keys && game.keys[39]) {gamePlayer.speedX = 1; }
+          if (game.keys && game.keys[38]) {gamePlayer.speedY = -1; }
+          if (game.keys && game.keys[40]) {gamePlayer.speedY = 1; }
+          if (gamePlayer.speedX != 0 || gamePlayer.speedY != 0){
+            gamePlayer.update();
+            // game.sendMomentData();
+          }
+          game.draw();
+          //ws.send(`[${JSON.stringify(buddy)}]`);
+          setTimeout(game.update, 10);
+        },
+        sendMomentData: function(){
+          ws.send(`[${JSON.stringify({date: Date(), position: gamePlayer.position})}]`);
+        },
+        draw: function(){
           game.drawBackground();
           game.drawPlayer();
         },
         drawPlayer: function(){
-          console.log(Object.values(this.player.shipType.shipBody)[0].position);
-          Object.values(this.player.shipType.shipBody).forEach((piece) => {
-            console.log(this.player.position)
+          Object.values(gamePlayer.shipType.shipBody).forEach((piece) => {
             this.ctx.fillStyle = piece.color
-            this.ctx.fillRect(this.player.position.x + piece.position.x, this.player.position.y + piece.position.y, piece.size.width, piece.size.height);
-          })
+            this.ctx.fillRect(gamePlayer.position.x + piece.position.x, gamePlayer.position.y + piece.position.y, piece.size.width, piece.size.height);
+          });
         },
         drawBackground: function(){
           this.ctx.beginPath();
@@ -124,34 +151,42 @@
         // Set canvas size and get context
         this.canvas.width = 1000;
         this.canvas.height = 1000;
-        this.player = new player();
+        gamePlayer = new player();
         this.ctx = this.canvas.getContext('2d');
+        window.addEventListener('keydown', function (e) {
+          game.keys = (game.keys || []);
+          game.keys[e.keyCode] = true;
+        })
+        window.addEventListener('keyup', function (e) {
+          game.keys[e.keyCode] = false;
+        })
+        setInterval(game.sendMomentData,1000);
         game.update();
       }
 
     }
-    game.startGame();
+    // game.startGame();
 
-      // // Create a websocket for sending data to the server
-      // const ws = new WebSocket('ws://0.0.0.0:8080','json');
+      // Create a websocket for sending data to the server
+      const ws = new WebSocket('ws://0.0.0.0:8080','json');
 
-      // // Send a message to the server after successfully connecting to the server
-      // ws.onopen = function open() {
-      //   ws.send('something');
-      //   //startGame();
-      //   // sendData();
-      // };
+      // Send a message to the server after successfully connecting to the server
+      ws.onopen = function open() {
+        ws.send('something');
+        game.startGame();
+        // sendData();
+      };
 
-      // // Upon receiving a message from the server, do this
-      // ws.onmessage = function incoming(data) {
-      //   console.log(data);
-      // };
+      // Upon receiving a message from the server, do this
+      ws.onmessage = function incoming(data) {
+        console.log(data);
+      };
 
-      // // Loop to repeatedly send updated data
-      // function sendData(){
-      //   ws.send('something');
-      //   setTimeout(function(){ sendData() }, 10000);
-      // }
+      // Loop to repeatedly send updated data
+      function sendData(){
+        ws.send('something');
+        setTimeout(function(){ sendData() }, 10000);
+      }
       
 
     </script>
