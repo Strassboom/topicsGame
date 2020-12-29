@@ -18,18 +18,6 @@
       <canvas id='gameCanvas'></canvas>
     </div>
     <script>
-      var buddy = {x:0,y:0}
-      
-      // Get relative mouse position (top left corner of canvas is 0,0)
-      function getMousePos(evt) {
-        var rect = canvas.getBoundingClientRect();
-        return {
-          x: evt.clientX - rect.left,
-          y: evt.clientY - rect.top
-        };
-      }
-      
-      //canvas.addEventListener('click',getMousePos);
       
       // Draw a rectangle in canvas so we can see it
       var player = function(){
@@ -119,14 +107,9 @@
           if (game.keys && game.keys[40]) {gamePlayer.speedY = 1; }
           if (gamePlayer.speedX != 0 || gamePlayer.speedY != 0){
             gamePlayer.update();
-            // game.sendMomentData();
           }
           game.draw();
-          //ws.send(`[${JSON.stringify(buddy)}]`);
           setTimeout(game.update, 10);
-        },
-        sendMomentData: function(){
-          ws.send(`[${JSON.stringify({date: Date(), position: gamePlayer.position})}]`);
         },
         draw: function(){
           game.drawBackground();
@@ -164,8 +147,9 @@
         game.update();
       }
 
-    }
-    // game.startGame();
+      }
+      // Uncomment the below line to test the game without networking
+      // game.startGame();
 
       // Create a websocket for sending data to the server
       const ws = new WebSocket('ws://0.0.0.0:8080','json');
@@ -174,6 +158,7 @@
       ws.onopen = function open() {
         ws.send('something');
         game.startGame();
+        // Uncomment the below line and comment out the above line to only test networking
         // sendData();
       };
 
@@ -188,7 +173,6 @@
         setTimeout(function(){ sendData() }, 10000);
       }
       
-
     </script>
   </body>
 </html>
