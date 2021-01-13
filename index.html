@@ -114,7 +114,13 @@
           setTimeout(game.update, 10);
         },
         sendData: function(){
-          ws.send(`[${JSON.stringify({date: Date(), position: gamePlayer.position})}]`);
+          if (ws.readyState == 3){
+            ws.close();
+          }
+          else{
+            console.log(ws.readyState);
+            ws.send(`[${JSON.stringify({date: Date(), position: gamePlayer.position})}]`);
+          }
         },
         draw: function(){
           game.drawBackground();
