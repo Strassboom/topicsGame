@@ -9,6 +9,7 @@
       }
 
       canvas {
+        height: 90vh;
         display: inline;
       }
     </style>
@@ -152,7 +153,7 @@
       // game.startGame();
 
       // Create a websocket for sending data to the server
-      const ws = new WebSocket('ws://0.0.0.0:8080','json');
+      const ws = new WebSocket('ws://localhost:8080','json');
 
       // Send a message to the server after successfully connecting to the server
       ws.onopen = function open() {
