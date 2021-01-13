@@ -120,7 +120,7 @@
           }
           else{
             console.log(ws.readyState);
-            ws.send(`[${JSON.stringify({date: Date(), position: gamePlayer.position})}]`);
+            ws.send(`[${JSON.stringify({date: Date(), sessionId: gamePlayer.sessionId, position: gamePlayer.position})}]`);
           }
         },
         draw: function(){
