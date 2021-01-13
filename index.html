@@ -146,7 +146,8 @@
           // Set canvas size and get context
           return new Promise(async (resolve,reject) => {
             gamePlayer = new player();
-            gamePlayer.sessionId = await axios.get('http://127.0.0.1:8080/createSession').then((response) => { return response.data });
+            gamePlayer.sessionId = await axios.get('http://127.0.0.1:8080/createSession').then((response) => { return response.data.sessionId });
+            console.log(gamePlayer.sessionId)
             this.canvas.width = 1000;
             this.canvas.height = 1000;
             this.ctx = this.canvas.getContext('2d');
