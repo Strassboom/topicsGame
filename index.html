@@ -29,7 +29,7 @@
         this.speedX = 0;
         this.speedY = 0;
         this.heat = 0;
-        this.hp = this.shipType.hp;
+        this.health_points = this.shipType.health_points;
         this.maxHeat = this.shipType.maxHeat;
         this.newPosX = function(){
           return this.speedX * game.canvas.width * this.shipType.maxVelocity
@@ -79,7 +79,7 @@
           },
           size: { width: 77, height: 62 },
           maxVelocity: 0.0032,
-          hp: 4,
+          health_points: 4,
           maxHeat: 100
         }
       }
