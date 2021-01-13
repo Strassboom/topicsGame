@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
       #canvas-container {
         width: 100%;
@@ -142,19 +143,23 @@
           this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         },
         startGame: function(){
-        // Set canvas size and get context
-        this.canvas.width = 1000;
-        this.canvas.height = 1000;
-        gamePlayer = new player();
-        this.ctx = this.canvas.getContext('2d');
-        window.addEventListener('keydown', function (e) {
-          game.keys = (game.keys || []);
-          game.keys[e.keyCode] = true;
-        })
-        window.addEventListener('keyup', function (e) {
-          game.keys[e.keyCode] = false;
-        })
-        game.update();
+          // Set canvas size and get context
+          return new Promise(async (resolve,reject) => {
+            gamePlayer = new player();
+            gamePlayer.sessionId = await axios.get('http://127.0.0.1:8080/createSession').then((response) => { return response.data });
+            this.canvas.width = 1000;
+            this.canvas.height = 1000;
+            this.ctx = this.canvas.getContext('2d');
+            window.addEventListener('keydown', function (e) {
+              game.keys = (game.keys || []);
+              game.keys[e.keyCode] = true;
+            })
+            window.addEventListener('keyup', function (e) {
+              game.keys[e.keyCode] = false;
+            })
+            game.update();
+            resolve() 
+          });
       }
 
       }
@@ -162,11 +167,11 @@
       // game.startGame();
 
       // Create a websocket for sending data to the server
-      const ws = new WebSocket('ws://localhost:8080','json');
+      const ws = new WebSocket('ws://127.0.0.1:8080','json');
 
       // Send a message to the server after successfully connecting to the server
       ws.onopen = function open() {
-        ws.send('something');
+        // ws.send('something');
         game.startGame();
         // Uncomment the below line and comment out the above line to only test networking
         // sendData();
@@ -174,7 +179,7 @@
 
       // Upon receiving a message from the server, do this
       ws.onmessage = function incoming(data) {
-        console.log(data);
+        //console.log(data);
       };
 
       // Loop to repeatedly send updated data
