@@ -108,8 +108,12 @@
           if (gamePlayer.speedX != 0 || gamePlayer.speedY != 0){
             gamePlayer.update();
           }
+          game.sendData();
           game.draw();
           setTimeout(game.update, 10);
+        },
+        sendData: function(){
+          ws.send(`[${JSON.stringify({date: Date(), position: gamePlayer.position})}]`);
         },
         draw: function(){
           game.drawBackground();
@@ -143,7 +147,6 @@
         window.addEventListener('keyup', function (e) {
           game.keys[e.keyCode] = false;
         })
-        setInterval(game.sendMomentData,1000);
         game.update();
       }
 
