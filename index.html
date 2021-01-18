@@ -120,7 +120,7 @@
           }
           else{
             console.log(ws.readyState);
-            ws.send(`[${JSON.stringify({date: Date(), sessionId: gamePlayer.sessionId, position: gamePlayer.position})}]`);
+            ws.send(`[${JSON.stringify({dateTime: new Date(), sessionId: gamePlayer.sessionId, position: gamePlayer.position, isFiring: false, health_points: gamePlayer.health_points })}]`);
           }
         },
         draw: function(){
@@ -146,7 +146,7 @@
           // Set canvas size and get context
           return new Promise(async (resolve,reject) => {
             gamePlayer = new player();
-            gamePlayer.sessionId = await axios.get('http://127.0.0.1:8080/createSession').then((response) => { return response.data.sessionId });
+            gamePlayer.sessionId = await axios.get('http://127.0.0.1:8080/createSession').then((response) => { return response.data.id });
             console.log(gamePlayer.sessionId)
             this.canvas.width = 1000;
             this.canvas.height = 1000;
